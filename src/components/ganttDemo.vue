@@ -20,16 +20,14 @@
       </el-select>
       -->
 
-      <!--
       <el-date-picker
           v-model="dateValue"
           @change = "handleChange"
           type="date"
           placeholder="日期"
-          format="YYYY/MM/DD"
-          value-format="YYYY/MM/DD"
+          format="yyyy/MM/dd"
+          value-format="yyyy/MM/dd"
       />
-      -->
 
       <!--
       <div class="legend">
@@ -119,7 +117,7 @@
       </div>
       -->
       <el-drawer
-          v-model="drawer"
+          :visible.sync="drawer"
       >
         <el-tabs v-model="activeName" type="card">
           <el-tab-pane label="基础信息" name="1">
