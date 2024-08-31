@@ -2,6 +2,7 @@
 <template>
   <div class="wrap">
     <div class="header" v-if="showOther">
+      <!--
       <span>显示模式：</span>
       <el-select
         style="width: 200px;"
@@ -17,7 +18,20 @@
         >
         </el-option>
       </el-select>
+      -->
 
+      <!--
+      <el-date-picker
+          v-model="dateValue"
+          @change = "handleChange"
+          type="date"
+          placeholder="日期"
+          format="YYYY/MM/DD"
+          value-format="YYYY/MM/DD"
+      />
+      -->
+
+      <!--
       <div class="legend">
         <span
           ><i :style="{ backgroundColor: legendAll[0].color }"></i
@@ -41,6 +55,7 @@
       <el-button type="primary" style="margin-left: 20px" @click="logParams"
         >打印重要参数</el-button
       >
+      -->
     </div>
     <div class="bottom">
       <div :class="{ 'left-box': true, showDetail: showDetail }">
@@ -58,11 +73,12 @@
           />
         </div>
 
+        <!--
         <div style="margin-top: 50px" v-if="showOther">
           <el-button type="primary" @click="withdraw">撤回</el-button>
         </div>
         <div v-if="showOther" class="gt1">
-          <!-- 调用demo -->
+          // 调用demo
           <ganttChartVue
             ref="ganTT2"
             v-bind="ganTT2Option"
@@ -78,7 +94,7 @@
             @tagClick="tagClick2"
             @closeTagTimeDialog="closeTagTimeDialog"
           >
-            <!-- tag tip内容 -->
+            // tag tip内容
             <template #tagTip="{ tagData }">
               <div class="myTagTip">
                 <p>标题：</p>
@@ -88,17 +104,63 @@
             </template>
           </ganttChartVue>
         </div>
+        -->
       </div>
+      <!--
       <div
         v-if="showOther"
         :class="{ 'right-box': true, showDetail: showDetail }"
       >
         <div class="arrow" @click="changeShowDetail">详细信息</div>
-        <!-- 内容 -->
+        // 内容
         <div class="detail-content" v-if="showDetail">
           <p>详细信息xxxx。。。。</p>
         </div>
       </div>
+      -->
+      <el-drawer
+          v-model="drawer"
+      >
+        <el-tabs v-model="activeName" type="card">
+          <el-tab-pane label="基础信息" name="1">
+            <el-form ref="form" :model="form" label-width="80px">
+              <el-form-item label="设备名称">
+                <el-select v-model="form.name" placeholder="请选择设备名称">
+                  <el-option v-for="item in optionList" :label="item.label" :value="item.label"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="流转卡号">
+                <el-input v-model="form.number"></el-input>
+              </el-form-item>
+              <el-form-item label="工艺号">
+                <el-input type="textarea" v-model="form.desc"></el-input>
+              </el-form-item>
+              <el-form-item label="长度">
+                <el-input v-model="form.length"></el-input>
+              </el-form-item>
+              <el-form-item label="时间
+        ">
+                <el-time-picker
+                    is-range
+                    v-model="form.times"
+                    value-format="HH:mm"
+                    format="HH:mm"
+                    range-separator="至"
+                    start-placeholder="开始时间"
+                    end-placeholder="结束时间"
+                    placeholder="选择时间范围">
+                </el-time-picker>
+              </el-form-item>
+              <el-form-item>
+                <el-button @click="drawer = false">取消</el-button>
+                <el-button type="primary" @click="onSave">保存</el-button>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="染缸参数" name="2">染缸参数</el-tab-pane>
+          <el-tab-pane label="订单信息" name="3">订单信息</el-tab-pane>
+        </el-tabs>
+      </el-drawer>
     </div>
   </div>
 </template>
@@ -106,6 +168,7 @@
 import { cloneObj } from "./index";
 import ganttChartVue from "../packages/components/ganttChartVue/index.vue"; // 本地调试
 // import ganttChartVue from '../../../dist/gantt-chart-vue.umd.min.js' // 测试编译后的文件
+import { utils } from '../packages/components/ganttChartVue/index'
 
 export default {
   components: {
@@ -113,6 +176,26 @@ export default {
   },
   data() {
     return {
+      drawer: false,
+      activeName: "1",
+      optionList: [
+        { label: "R21", value:"R21"},
+        { label: "R22", value:"R22"},
+        { label: "R23", value:"R23"},
+        { label: "R24", value:"R24"},
+        { label: "R25", value:"R25"},
+        { label: "R26", value:"R26"},
+        { label: "R27", value:"R27"},
+
+      ],
+      form: {
+        name: "",
+        number: "",
+        desc: "",
+        length: "",
+        times: []
+      },
+      dateValue: utils._date.format(new Date(), 'YYYY/MM/DD'),
       showOther: true, // 调试
       showMode: 1,
       options: [
@@ -151,7 +234,7 @@ export default {
 
       ganTT1Option: {
         readOnly: false, // 只读模式
-        title: "甘特图",
+        title: "设备名称",
         legend: [
           {
             label: "模型预排",
@@ -161,18 +244,18 @@ export default {
             closeTip: false, // 显示tag tip，也可以在rows中配置单个tag是否关闭提示
             btnList: [
               // 右键菜单按钮列表
-              {
-                label: "tag menu btn1",
-                disabled: false,
-              },
-              {
-                label: "tag menu btn2",
-                disabled: false,
-              },
-              {
-                label: "tag menu btn3禁用",
-                disabled: true,
-              },
+              // {
+              //   label: "tag menu btn1",
+              //   disabled: false,
+              // },
+              // {
+              //   label: "tag menu btn2",
+              //   disabled: false,
+              // },
+              // {
+              //   label: "tag menu btn3禁用",
+              //   disabled: true,
+              // },
             ],
           },
           {
@@ -192,102 +275,243 @@ export default {
             type: 4, // 用于判定同一网格行内具体所属行
           },
         ],
+        startDate: utils._date.format(new Date(), 'YYYY/MM/DD'),
+        dateDuration: 24,
+        // 甘特图右键菜单
+        rightClickMenuList: [
+          {
+            label: "新增",
+            disabled: false,
+          }
+        ],
         rows: [
           {
-            label: "项目A",
+            label: "R20",
+            labelValue:"2管",
             tags: [
               // 注意：属性在 backfillTag 方法中声明才会生效，其他数据会统一放到 tag.data 中,属于不被承认的外部数据，虽然也能实现。。。
               {
-                startTime: "2024/08/27 02:10:00",
-                endTime: "2024/08/27 06:10:00",
-                label: "关闭tag的hover tip效果",
-                type: 2,
+                startTime: '2024/08/31 02:10',
+                endTime: '2024/08/31 06:10',
+                label: "249495966|12345|华东*市|黑色",
+                bgColor: "#ff9c1b",
+                type: 1,
                 closeTip: true, // 不显示此tag的tip，注意：只有true|false才会生效
                 dragable: true, // 此类型tag是否可以拖动,优先级最高，不设置将取legend的dragable，都没有则禁止拖动，注意：只有true|false才会生效
                 className: "tagSpecial", // 可单独设置tag样式名
-                selected: false, // 当前tag是否选中-有选中样式
-                preIcon: "iconfont icon-shijian", // tag前的图标
+                selected: true, // 当前tag是否选中-有选中样式
+                // preIcon: "iconfont icon-shijian", // tag前的图标
                 hide: false, // 是否隐藏此tag
               },
               {
-                startTime: "2024/08/27 02:10:00",
-                endTime: "2024/08/27 06:10:00",
-                label: "关闭此类型tip-1",
-                type: 3,
-              },
-              {
-                startTime: "2024/08/27 02:10:00",
-                endTime: "2024/08/27 06:10:00",
-                label: "计划停机2,完成度90%",
-                type: 4,
-              },
-              {
-                startTime: "2024/08/27 08:00:00",
-                endTime: "2024/08/27 10:10:00",
-                label: "关闭此类型tip-2",
-                type: 3,
-              },
-              {
-                startTime: "2024/08/27 02:10:00",
-                endTime: "2024/08/27 06:00:00",
-                label: "tag右键菜单展示demo",
+                startTime: "2024/08/31 06:20",
+                endTime: "2024/08/31 09:10",
+                label: "249495966|12345|华东*市|紫色",
+                bgColor: "#ff9c1b",
                 type: 1,
+                dragable: true,
+              },
+              {
+                startTime: "2024/08/31 14:10",
+                endTime: "2024/08/31 16:10",
+                label: "249495966|12345|华东*市|红色",
+                bgColor: "#03B48A",
+                type: 1,
+                dragable: true,
+              },
+              {
+                startTime: "2024/08/31 010:00",
+                endTime: "2024/08/31 12:10",
+                label: "249495966|12345|华东*市|黄色",
+                bgColor: "#80B4DB",
+                type: 1,
+                dragable: true,
+              },
+              {
+                startTime: "2024/08/31 16:30",
+                endTime: "2024/08/31 18:00",
+                label: "249495966|12345|华东*市|天蓝色",
+                bgColor: "#80B4DB",
+                type: 1,
+                dragable: true,
               },
             ],
           },
           {
-            label: "项目B",
+            label: "R21",
+            labelValue:"2管",
             tags: [
               {
-                startTime: "2024/08/27 02:10:00",
-                endTime: "2024/08/27 06:10:00",
-                label: "模型预排1111,xx吨,完成度90%",
+                startTime: "2024/08/31 02:10",
+                endTime: "2024/08/31 06:10",
+                bgColor: "#AE7BCF",
+                label: "249495966|12345|华东*市|天蓝色",
                 type: 1,
               },
               {
-                startTime: "2024/08/27 02:10:00",
-                endTime: "2024/08/27 06:10:00",
-                label: "xxxx,xx吨,完成度90%",
-                type: 3,
+                startTime: "2024/08/31 08:10",
+                endTime: "2024/08/31 10:10",
+                bgColor: "#AE7BCF",
+                label: "249495966|12345|华东*市|天蓝色",
+                type: 1,
               },
             ],
           },
           {
-            label: "项目C",
+            label: "R22",
+            labelValue:"2管",
             tags: [],
           },
           {
-            label: "项目D",
+            label: "R23",
+            labelValue:"2管",
             tags: [
               {
-                startTime: "2024/08/27 02:10:00",
-                endTime: "2024/08/27 06:10:00",
-                label: "xxxx,xx吨,完成度90%",
+                startTime: "2024/08/31 02:10",
+                endTime: "2024/08/31 06:10",
+                label: "249495966|12345|华东*市|黑色",
+                bgColor: "#0E3A5F",
                 type: 1,
               },
             ],
           },
           {
-            label: "项目E",
+            label: "R24",
+            labelValue:"2管",
             tags: [],
           },
           {
-            label: "项目F",
+            label: "R25",
+            labelValue:"2管",
             tags: [],
           },
           {
-            label: "项目G",
+            label: "R26",
+            labelValue:"2管",
             disabled: true, // 禁止响应事件
             tags: [],
           },
           {
-            label: "项目H",
+            label: "R27",
+            labelValue:"2管",
             tags: [],
           },
-        ],
-        startDate: "2024/08/27",
-        dateDuration: 24,
+        ]
       },
+
+      ganTT1OptionRows: [
+        {
+          label: "R20",
+          labelValue:"2管",
+          tags: [
+            // 注意：属性在 backfillTag 方法中声明才会生效，其他数据会统一放到 tag.data 中,属于不被承认的外部数据，虽然也能实现。。。
+            {
+              startTime: "2024/08/31 02:10",
+              endTime: "2024/08/31 06:10",
+              label: "249495966|12345|华东*市|黑色",
+              bgColor: "#ff9c1b",
+              type: 1,
+              closeTip: true, // 不显示此tag的tip，注意：只有true|false才会生效
+              dragable: true, // 此类型tag是否可以拖动,优先级最高，不设置将取legend的dragable，都没有则禁止拖动，注意：只有true|false才会生效
+              className: "tagSpecial", // 可单独设置tag样式名
+              selected: true, // 当前tag是否选中-有选中样式
+              // preIcon: "iconfont icon-shijian", // tag前的图标
+              hide: false, // 是否隐藏此tag
+            },
+            {
+              startTime: "2024/08/31 06:20",
+              endTime: "2024/08/31 09:10",
+              label: "249495966|12345|华东*市|紫色",
+              bgColor: "#ff9c1b",
+              type: 1,
+              dragable: true,
+            },
+            {
+              startTime: "2024/08/31 14:10",
+              endTime: "2024/08/31 16:10",
+              label: "249495966|12345|华东*市|红色",
+              bgColor: "#03B48A",
+              type: 1,
+              dragable: true,
+            },
+            {
+              startTime: "2024/08/31 010:00",
+              endTime: "2024/08/31 12:10",
+              label: "249495966|12345|华东*市|黄色",
+              bgColor: "#80B4DB",
+              type: 1,
+              dragable: true,
+            },
+            {
+              startTime: "2024/08/31 16:30",
+              endTime: "2024/08/31 18:00",
+              label: "249495966|12345|华东*市|天蓝色",
+              bgColor: "#80B4DB",
+              type: 1,
+              dragable: true,
+            },
+          ],
+        },
+        {
+          label: "R21",
+          labelValue:"2管",
+          tags: [
+            {
+              startTime: "2024/08/31 02:10",
+              endTime: "2024/08/31 06:10",
+              bgColor: "#AE7BCF",
+              label: "249495966|12345|华东*市|天蓝色",
+              type: 1,
+            },
+            {
+              startTime: "2024/08/31 08:10",
+              endTime: "2024/08/31 10:10",
+              bgColor: "#AE7BCF",
+              label: "249495966|12345|华东*市|天蓝色",
+              type: 1,
+            },
+          ],
+        },
+        {
+          label: "R22",
+          labelValue:"2管",
+          tags: [],
+        },
+        {
+          label: "R23",
+          labelValue:"2管",
+          tags: [
+            {
+              startTime: "2024/08/31 02:10",
+              endTime: "2024/08/31 06:10",
+              label: "249495966|12345|华东*市|黑色",
+              bgColor: "#0E3A5F",
+              type: 1,
+            },
+          ],
+        },
+        {
+          label: "R24",
+          labelValue:"2管",
+          tags: [],
+        },
+        {
+          label: "R25",
+          labelValue:"2管",
+          tags: [],
+        },
+        {
+          label: "R26",
+          labelValue:"2管",
+          disabled: true, // 禁止响应事件
+          tags: [],
+        },
+        {
+          label: "R27",
+          labelValue:"2管",
+          tags: [],
+        },
+      ],
 
       // 甘特图配置项
       ganTT2Option: {
@@ -338,8 +562,8 @@ export default {
             dragable: false, // 此类型tag是否可以拖动
           },
         ],
-        startDate: "2024/08/27",
-        dateDuration: 24,
+        startDate: "2023/12/01",
+        dateDuration: 7,
         // 任务列菜单 - 每行的菜单都一样，若想给某行单独设置不同的菜单，则给row 对应行赋值 taskMenuList
         taskMenuList: [
           {
@@ -367,34 +591,34 @@ export default {
             ],
             tags: [
               {
-                startTime: "2024/08/27 02:10:00",
-                endTime: "2024/08/27 06:10:00",
+                startTime: "2023/12/02 02:10:00",
+                endTime: "2023/12/03 06:10:00",
                 label: "生产实绩,此tag不显示tip",
                 type: 2,
                 closeTip: true, // 不显示tip
                 className: "", // 可单独设置tag样式名
                 selected: false, // 是否选中
-                preIcon: "el-icon-goods",
+                preIcon: "iconfont icon-chakan",
               },
               {
-                startTime: "2024/08/27 02:10:00",
-                endTime: "2024/08/27 06:00:00",
+                startTime: "2023/12/01 02:10:00",
+                endTime: "2023/12/03 06:00:00",
                 label: "计划停机，同一行，但是颜色不同",
                 className: "haltTag", // 可单独设置tag样式名
                 type: 1,
                 dragable: true, // 此类型tag是否可以拖动
               },
               {
-                startTime: "2024/08/27 02:10:00",
-                endTime: "2024/08/27 06:00:00",
+                startTime: "2023/12/04 02:10:00",
+                endTime: "2023/12/05 06:00:00",
                 label: "停机，tag不可拖动",
                 className: "planHaltTag", // 可单独设置tag样式名
                 type: 1,
                 dragable: false, // 此类型tag是否可以拖动
               },
               {
-                startTime: "2024/08/27 12:10:00",
-                endTime: "2024/08/27 13:00:00",
+                startTime: "2023/12/05 12:10:00",
+                endTime: "2023/12/06 06:00:00",
                 label: "xxxx,xx吨,完成度90%",
                 type: 1,
               },
@@ -404,8 +628,8 @@ export default {
             label: "项目B",
             tags: [
               {
-                startTime: "2024/08/27 02:10:00",
-                endTime: "2024/08/27 06:10:00",
+                startTime: "2023/12/06 02:10:00",
+                endTime: "2023/12/07 06:10:00",
                 label: "模型预排1111,xx吨,完成度90%",
                 type: 1,
               },
@@ -420,8 +644,8 @@ export default {
             label: "项目D",
             tags: [
               {
-                startTime: "2024/08/27 02:10:00",
-                endTime: "2024/08/27 06:10:00",
+                startTime: "2023/12/01 02:10:00",
+                endTime: "2023/12/03 06:10:00",
                 label: "xxxx,xx吨,完成度90%",
                 type: 1,
               },
@@ -454,8 +678,8 @@ export default {
         showSelected: false,
 
         // 甘特图为7+2天
-        // decreaseDayNum: 1, // 显示前一天
-        // IncreaseDayNum: 1, // 显示后一天
+        decreaseDayNum: 1, // 显示前一天
+        IncreaseDayNum: 1, // 显示后一天
 
         // tag拖动的避让效果，原理: 修改translateX(x)，这样不会对原始数据造成影响
         openTagMoveDodgeAnimate: true, // 开启
@@ -475,6 +699,40 @@ export default {
     this.filterGanTTTags();
   },
   methods: {
+    handleChange(e){
+      this.ganTT1Option.startDate = e
+      this.ganTT1Option.rows = this.ganTT1OptionRows.map(item => {
+        const tags = item.tags.filter(j => j.startTime.includes(this.dateValue))
+        return {...item, tags}
+      })
+
+      console.log(this.ganTT1Option.rows, "-------123")
+      console.log(this.ganTT1OptionRows, "-------1230")
+
+
+    },
+
+    onSave(){
+      // const timeList = this.form.times.split(',')
+      this.ganTT1Option.startDate = this.dateValue
+      this.ganTT1Option.rows = this.ganTT1OptionRows.map(item => {
+        if(item.label === this.form.name){
+          item.tags = item.tags ? item.tags : []
+          item.tags.push({
+            startTime: `${this.dateValue} ${this.form.times[0]}`,
+            endTime: `${this.dateValue} ${this.form.times[1]}`,
+            label: `${this.form.number} | ${this.form.desc} | ${this.form.length}`,
+            type: 1,
+            dragable: true,
+          })
+        }
+        return item
+      })
+
+      this.drawer = false
+      console.log(this.ganTT1Option.rows, "-------12")
+
+    },
     // 筛选
     filterGanTTTags() {
       let rows = this.ganTT2Option.rows;
@@ -530,6 +788,12 @@ export default {
 
     // 甘特图右键菜单
     rightClickMenuClick1(data) {
+      this.form.name = data.coordsInfo.coords[1]
+      // const startTime = data.coordsInfo.coords[0]?.split(" ")[1]
+
+      // console.log(startTime, "-----123")
+      // this.form.times = [startTime, '']
+      this.drawer = true
       console.log("甘特图右键菜单点击", data);
     },
     // 甘特图右键菜单
